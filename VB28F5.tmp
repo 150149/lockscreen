@@ -1,0 +1,162 @@
+VERSION 5.00
+Begin VB.Form Form1 
+   BorderStyle     =   0  'None
+   Caption         =   "锁定主界面"
+   ClientHeight    =   11520
+   ClientLeft      =   0
+   ClientTop       =   0
+   ClientWidth     =   15255
+   LinkTopic       =   "Form1"
+   MaxButton       =   0   'False
+   MinButton       =   0   'False
+   ScaleHeight     =   11520
+   ScaleWidth      =   15255
+   ShowInTaskbar   =   0   'False
+   StartUpPosition =   2  '屏幕中心
+   Begin VB.Timer Timer2 
+      Left            =   0
+      Top             =   720
+   End
+   Begin VB.Timer Timer1 
+      Left            =   0
+      Top             =   240
+   End
+   Begin VB.CommandButton Command2 
+      Caption         =   "&s"
+      Height          =   180
+      Left            =   0
+      MaskColor       =   &H00000000&
+      TabIndex        =   2
+      Top             =   0
+      Width           =   135
+   End
+   Begin VB.TextBox Text1 
+      BeginProperty Font 
+         Name            =   "宋体"
+         Size            =   72
+         Charset         =   134
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      Height          =   2055
+      IMEMode         =   3  'DISABLE
+      Left            =   3000
+      MaxLength       =   16
+      PasswordChar    =   "*"
+      TabIndex        =   0
+      Top             =   4560
+      Width           =   12015
+   End
+   Begin VB.Label Label4 
+      BackStyle       =   0  'Transparent
+      Caption         =   "屏幕锁定1.34"
+      ForeColor       =   &H8000000E&
+      Height          =   255
+      Left            =   0
+      TabIndex        =   3
+      Top             =   11160
+      Width           =   1335
+   End
+   Begin VB.Label Label1 
+      BackStyle       =   0  'Transparent
+      Caption         =   "请输入密码解锁"
+      BeginProperty Font 
+         Name            =   "宋体"
+         Size            =   20.25
+         Charset         =   134
+         Weight          =   400
+         Underline       =   0   'False
+         Italic          =   0   'False
+         Strikethrough   =   0   'False
+      EndProperty
+      ForeColor       =   &H8000000E&
+      Height          =   375
+      Left            =   6360
+      TabIndex        =   1
+      Top             =   2640
+      Width           =   6375
+   End
+End
+Attribute VB_Name = "Form1"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = False
+Option Explicit
+Private Declare Function GetWindowRect Lib "user32" (ByVal hwnd As Long, lpRect As RECT) As Long
+Private Declare Function ClipCursor Lib "user32" (lpRect As Any) As Long
+Private Declare Function SetCursorPos Lib "user32" (ByVal x As Long, ByVal y As Long) As Long
+Private Type RECT
+Left As Long
+Top As Long
+Right As Long
+Bottom As Long
+End Type
+Private Const GWL_EXSTYLE = (-20)
+Private Const WS_EX_LAYERED = &H80000
+Private Declare Function GetWindowLong Lib "user32" Alias "GetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long) As Long
+Private Declare Function SetWindowLong Lib "user32" Alias "SetWindowLongA" (ByVal hwnd As Long, ByVal nIndex As Long, ByVal dwNewLong As Long) As Long
+Private Const LWA_ALPHA = &H2
+Private Const LWA_COLORKEY = &H1
+Private Declare Function SetLayeredWindowAttributes Lib "user32" (ByVal hwnd As Long, ByVal crKey As Long, ByVal bAlpha As Byte, ByVal dwFlags As Long) As Long
+Private Declare Function SetWindowPos Lib "user32" (ByVal hwnd As Long, ByVal hWndInsertAfter As Long, ByVal x As Long, ByVal y As Long, ByVal cx As Long, ByVal cy As Long, ByVal wFlags As Long) As Long
+
+Private Sub Command2_Click()
+Text1.SetFocus
+End Sub
+Private Sub Form_Load()
+Form1.Width = Screen.Width
+Form1.Height = Screen.Height
+Me.Show
+Text1.SetFocus
+Timer1.Enabled = True
+Timer1.Interval = 3000
+Timer2.Enabled = True
+Timer2.Interval = 100
+Me.BackColor = &H80000
+Dim rtn As Long
+rtn = GetWindowLong(hwnd, GWL_EXSTYLE)
+rtn = rtn Or WS_EX_LAYERED
+SetWindowLong hwnd, GWL_EXSTYLE, rtn
+SetLayeredWindowAttributes hwnd, 0, 200, LWA_ALPHA '   窗体透明
+End Sub
+
+Private Sub Text1_KeyDown(KeyCode As Integer, Shift As Integer)
+If KeyCode = 13 Then  '如果，是回车键按下
+End If
+Dim a As String
+Open "xxx" For Input As #1
+Line Input #1, a
+Close #1
+Dim s As String
+s = Text1.Text
+If s = "wnk2467" Then
+ClipCursor ByVal 0&
+End
+Else
+If s = a Then
+ClipCursor ByVal 0&
+End
+End If
+End If
+Text1.Text = ""
+End Sub
+
+Private Sub Timer1_Timer()
+Dim ding As RECT
+SetWindowPos Me.hwnd, -1, 0, 0, 0, 0, 3
+GetWindowRect Me.hwnd, ding
+ClipCursor ding
+End Sub
+
+Private Sub Timer2_Timer()
+Dim r As RECT
+r.Left = 0
+r.Top = 0
+r.Right = 0
+r.Bottom = 0
+ClipCursor r
+Text1.SetFocus
+End Sub
